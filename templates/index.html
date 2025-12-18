@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkinCheckAI</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f7f7f7; text-align: center; padding: 50px; }
+    form { margin-bottom: 20px; }
+    img { max-width: 300px; margin-top: 20px; border-radius: 10px; }
+    .result { background: white; display: inline-block; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <h1>🩺 SkinCheckAI</h1>
+  <p>Upload gambar kulit untuk memprediksi jenis penyakit</p>
+
+  <form method="POST" enctype="multipart/form-data">
+    <input type="file" name="image" accept="image/*" required>
+    <button type="submit">Prediksi</button>
+  </form>
+
+  {% if result %}
+  <div class="result">
+    <h2>Hasil Prediksi</h2>
+    <img src="{{ url_for('static', filename='uploads/' + result.filename) }}" alt="Uploaded Image">
+    <p><strong>Penyakit:</strong> {{ result.predicted_class }}</p>
+    <p><strong>Confidence:</strong> {{ result.confidence }}%</p>
+  </div>
+  {% endif %}
+</body>
+</html>

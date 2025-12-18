@@ -1,0 +1,23 @@
+# Mac
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.env
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model / data besar (kalau ada)
+*.h5
+*.pt
+*.pkl
+
+# Build / cache
+build/
+dist/
