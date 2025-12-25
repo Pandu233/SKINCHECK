@@ -1,36 +1,61 @@
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: ["class"],
     content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+        "./index.html",
+        "./src/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
         container: {
-        center: true,
-        padding: {
-        DEFAULT: "1.5rem",
-        lg: "2rem",
+            center: true,
+            padding: {
+                DEFAULT: "1.5rem",
+                lg: "2rem",
+            },
         },
-    },
         extend: {
             colors: {
-            primary: "#2563eb",        // blue-600
-            primarySoft: "#eff6ff",    // blue-50
-            surface: "#ffffff",
-            muted: "#6b7280",          // gray-500
-            dark: "#0f172a",
+                border: "hsl(var(--border))",
+                input: "hsl(var(--input))",
+                ring: "hsl(var(--ring))",
+                background: "hsl(var(--background))",
+                foreground: "hsl(var(--foreground))",
+                primary: {
+                    DEFAULT: "hsl(var(--primary))",
+                    foreground: "hsl(var(--primary-foreground))",
+                },
+                secondary: {
+                    DEFAULT: "hsl(var(--secondary))",
+                    foreground: "hsl(var(--secondary-foreground))",
+                },
+                destructive: {
+                    DEFAULT: "hsl(var(--destructive))",
+                    foreground: "hsl(var(--destructive-foreground))",
+                },
+                muted: {
+                    DEFAULT: "hsl(var(--muted))",
+                    foreground: "hsl(var(--muted-foreground))",
+                },
+                accent: {
+                    DEFAULT: "hsl(var(--accent))",
+                    foreground: "hsl(var(--accent-foreground))",
+                },
+                popover: {
+                    DEFAULT: "hsl(var(--popover))",
+                    foreground: "hsl(var(--popover-foreground))",
+                },
+                card: {
+                    DEFAULT: "hsl(var(--card))",
+                    foreground: "hsl(var(--card-foreground))",
+                },
             },
             fontFamily: {
                 sans: ["Poppins", "Inter", "system-ui", "sans-serif"],
             },
             borderRadius: {
-                xl: "1rem",
-                "2xl": "1.5rem",
-                "3xl": "2rem",
-            },
-            boxShadow: {
-                soft: "0 10px 25px -5px rgba(0,0,0,0.08)",
-                strong: "0 25px 50px -12px rgba(0,0,0,0.15)",
+                lg: "var(--radius)",
+                md: "calc(var(--radius) - 2px)",
+                sm: "calc(var(--radius) - 4px)",
             },
         },
     },

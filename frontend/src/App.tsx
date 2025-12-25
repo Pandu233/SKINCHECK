@@ -1,4 +1,4 @@
-import { Header } from "./components/";
+import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { HowItWorks } from "./components/HowItWorks";
 import { SkinAnalyzer } from "./components/SkinAnalyzer";
