@@ -17,7 +17,7 @@ venv/
 *.h5
 *.pt
 *.pkl
-
+skin_disease/
 
 # Build / cache
 build/
