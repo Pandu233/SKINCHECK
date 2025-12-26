@@ -6,7 +6,7 @@ app = FastAPI(title="SkinCheckAI API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # nanti ganti domain frontend
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],  # support both ports
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
