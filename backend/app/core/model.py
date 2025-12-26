@@ -1,20 +1,29 @@
 import tensorflow as tf
 import numpy as np
-from app.services.preprocess import preprocess_image
+from PIL import Image
 from app.utils.labels import CLASS_NAMES
 
-MODEL_PATH = "models/skincheck_model.keras"
+MODEL_PATH = "/Users/asyzyni/Desktop/SKINCHECK/backend/models/skincheck_model.keras"
+IMAGE_SIZE = (224,224)
 
 model = tf.keras.models.load_model(MODEL_PATH)
 
-async def predict_image(file):
-    image = await preprocess_image(file)
-    preds = model.predict(image)[0]
+def predict_top3 (image: Image.Image):
+    image = image.convert("RGB")
+    image = image.resize(IMAGE_SIZE)
+    
+    img_arr = np.array(image) / 255.0
+    img_arr = np.expand_dims(img_arr, axis=0)
 
-    class_idx = int(np.argmax(preds))
-    confidence = float(preds[class_idx])
+    pred = model.predict(img_arr)[0]
 
-    return {
-        "prediction": CLASS_NAMES[class_idx],
-        "confidence": round(confidence * 100, 2)
-    }
+    top_indices = pred.argsort()[-3:][::-1]
+    
+    results = []
+    
+    for idx in top_indices:
+        results.append({
+            "condition" : CLASS_NAMES[idx],
+            "confidence" : float(pred[idx])
+        })
+    return results

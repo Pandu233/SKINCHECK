@@ -4,13 +4,30 @@ import { Button } from "./ui/button";
 import { Card } from "./ui/card";
 import { Progress } from "./ui/progress";
 import { Badge } from "./ui/badge";
+import { predictSkin } from "../services/predictAPI";
+
+interface Prediction {
+  condition : string; 
+  confidence : number; 
+}
 
 interface AnalysisResult {
-  condition: string;
-  confidence: number;
-  severity: "Ringan" | "Sedang" | "Serius";
-  description: string;
-  recommendations: string[];
+  predictions : Prediction[];
+}
+
+function dataURLtoFile(dataUrl: string, filename: string) {
+  const arr = dataUrl.split(",");
+  const mime = arr[0].match(/:(.*?);/)?.[1];
+  const bstr = atob(arr[1]);
+
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+
+  return new File([u8arr], filename, {type: mime});
 }
 
 export function SkinAnalyzer() {
@@ -28,54 +45,22 @@ export function SkinAnalyzer() {
     }
   }, [stream]);
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
+    if (!capturedImage) return
+
     setIsAnalyzing(true);
-    // Simulate API call
-    setTimeout(() => {
-      // Mock result
-      const mockResults: AnalysisResult[] = [
-        {
-          condition: "Dermatitis Atopik (Eksim)",
-          confidence: 87,
-          severity: "Sedang",
-          description: "Kondisi kulit yang menyebabkan kulit kering, gatal, dan meradang. Biasanya terjadi pada lipatan kulit.",
-          recommendations: [
-            "Gunakan pelembab secara teratur",
-            "Hindari sabun yang keras",
-            "Konsultasi dengan dokter kulit untuk perawatan lebih lanjut",
-            "Gunakan pakaian yang lembut dan tidak mengiritasi kulit"
-          ]
-        },
-        {
-          condition: "Melanoma",
-          confidence: 92,
-          severity: "Serius",
-          description: "Jenis kanker kulit yang berkembang dari sel melanosit. Deteksi dini sangat penting.",
-          recommendations: [
-            "Segera konsultasi dengan dokter spesialis kulit",
-            "Hindari paparan sinar matahari langsung",
-            "Lakukan pemeriksaan medis lebih lanjut",
-            "Pantau perubahan pada tahi lalat atau bercak kulit"
-          ]
-        },
-        {
-          condition: "Jerawat (Acne Vulgaris)",
-          confidence: 78,
-          severity: "Ringan",
-          description: "Kondisi kulit umum yang terjadi ketika folikel rambut tersumbat oleh minyak dan sel kulit mati.",
-          recommendations: [
-            "Bersihkan wajah dua kali sehari dengan pembersih lembut",
-            "Gunakan produk non-komedogenik",
-            "Hindari memencet jerawat",
-            "Konsultasi dengan dokter untuk perawatan topikal atau oral"
-          ]
-        }
-      ];
-      
-      const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
-      setAnalysisResult(randomResult);
+    setAnalysisResult(null);
+
+    try {
+      const file = dataURLtoFile(capturedImage, "skin.jpg");
+      const data = await predictSkin(file);
+      setAnalysisResult(data);
+    } catch (error) {
+      console.error(error);
+      alert("Terjadi kesalahan saat analisis");
+    } finally {
       setIsAnalyzing(false);
-    }, 2500);
+    }
   };
 
   const handleReset = () => {
@@ -276,63 +261,41 @@ export function SkinAnalyzer() {
 
             {analysisResult && (
               <div className="space-y-4">
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h4 className="mb-2">{analysisResult.condition}</h4>
-                      <Badge className={getSeverityColor(analysisResult.severity)}>
-                        {analysisResult.severity}
+                {analysisResult.predictions.map((pred, index) => (
+                  <div
+                    key={index}
+                    className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border-2 border-blue-200"
+                  >
+                    <div className="flex justify-between items-center mb-2">
+                      <h4 className="text-lg font-semibold">
+                        #{index + 1} {pred.condition}
+                      </h4>
+                      <Badge className="bg-blue-100 text-blue-800">
+                        {(pred.confidence * 100).toFixed(1)}%
                       </Badge>
                     </div>
-                    <CheckCircle2 className="w-6 h-6 text-green-600" />
-                  </div>
-                  
-                  <div className="space-y-2 mb-4">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Tingkat Kepercayaan</span>
-                      <span>{analysisResult.confidence}%</span>
-                    </div>
-                    <Progress value={analysisResult.confidence} className="h-2" />
-                  </div>
 
-                  <p className="text-sm text-gray-700">
-                    {analysisResult.description}
-                  </p>
-                </div>
-
-                <div className="bg-white rounded-xl p-6 border-2 border-gray-200">
-                  <h4 className="mb-3">Rekomendasi Perawatan</h4>
-                  <ul className="space-y-2">
-                    {analysisResult.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
-                        <span className="text-sm text-gray-700">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                    <Progress value={pred.confidence * 100} className="h-2" />
+                  </div>
+                ))}
 
                 <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4">
                   <div className="flex gap-3">
-                    <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm">
-                      <p className="text-amber-800 mb-1">
-                        Catatan Penting
-                      </p>
-                      <p className="text-amber-700">
-                        Hasil ini adalah prediksi AI dan tidak menggantikan diagnosis medis profesional. 
-                        Silakan konsultasi dengan dokter spesialis kulit untuk diagnosis yang akurat.
-                      </p>
+                      <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+                        <p className="text-sm text-amber-700">
+                          Hasil ini adalah prediksi AI dan tidak menggantikan diagnosis dokter.
+                        </p>
                     </div>
                   </div>
-                </div>
 
-                <Button onClick={handleReset} variant="outline" className="w-full">
-                  <RotateCcw className="w-5 h-5 mr-2" />
-                  Analisis Foto Lain
-                </Button>
-              </div>
-            )}
+                  <Button onClick={handleReset} variant="outline" className="w-full">
+                    <RotateCcw className="w-5 h-5 mr-2" />
+                    Analisis Foto Lain
+                  </Button>
+                </div>
+              )}
+
+
           </div>
         </div>
       </Card>
